@@ -1,0 +1,29 @@
+#Input R
+1e5
+#Input Pr
+1
+#Input alpha
+1.1547005383792517
+#Input yL
+3.141592653589793
+#Input beta
+1.0
+#Input ell
+0.1
+#Input Nx
+128
+#Input Ny
+128
+#Input Nz
+64
+#Input stop time
+150
+#Input max timestep
+0.00005
+#Input initializiation 
+load3
+#Output files
+True
+#Filename End String
+prev_hex_state_continue_zeroing
+
