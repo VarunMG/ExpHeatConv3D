@@ -1,0 +1,30 @@
+#Input R
+1e5
+#Input Pr
+1
+#Input alpha
+2.0
+#Input yL
+1.8137993642342178
+#Input beta
+1.0
+#Input ell
+0.1
+#Input Nx
+128
+#Input Ny
+128
+#Input Nz
+64
+#Input stop time
+0.085
+#Input max timestep
+0.0005
+#Input initializiation 
+load4
+#Hex zeroing
+True
+#Output files
+False
+#end String
+period_averaging
