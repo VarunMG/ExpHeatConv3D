@@ -1,9 +1,9 @@
 #Input R
-1e5
+1e6
 #Input Pr
 1
 #Input alpha
-1.8
+2.0
 #Input yL
 1.8137993642342178
 #Input beta
@@ -11,20 +11,20 @@
 #Input ell
 0.1
 #Input Nx
-256
+288
 #Input Ny
-128
+144
 #Input Nz
-64
+144
 #Input stop time
 150
 #Input max timestep
 0.0005
 #Input initializiation 
-load4
+new_hexIC
 #Hex zeroing
 True
 #Output files
 True
 #end String
-new_hexIC_alpha1.8_start_from_prev
+new_hexIC_R1e6
