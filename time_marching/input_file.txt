@@ -19,7 +19,7 @@
 #Input stop time
 150
 #Input max timestep
-0.0005
+0.0001
 #Input initializiation 
 new_hexIC
 #Hex zeroing

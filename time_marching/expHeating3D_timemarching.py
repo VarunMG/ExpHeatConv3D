@@ -2,6 +2,7 @@ import numpy as np
 import dedalus.public as d3
 import logging
 import sys
+import os
 logger = logging.getLogger(__name__)
 
 
