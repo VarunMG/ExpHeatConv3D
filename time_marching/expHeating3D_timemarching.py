@@ -271,6 +271,12 @@ elif init == 'load4':
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
     p.load_from_global_grid_data(pArr)
+elif init == 'load_hex':
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.0yL1.8137993642342178ell0.1beta1.0Nx256Ny128Nz64_3D_T150.0_new_hexIC_test_runOutput/fluidData2.4999096.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
 elif init == 'zero_modes':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T150.0_hexagon_IC_runOutput/fluidData4.838896.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)
@@ -385,9 +391,38 @@ try:
             u['c'][:,1::4,2::4,:] = 0
             u['c'][:,1::4,3::4,:] = 0
 
-            #print(b['c'].shape)
+            print(b['c'].shape)
             #coeff_arr = b.allgather_data('c')
             #logger.info(isHex(coeff_arr))
+        if init == 'load_hex':
+            b['c'][2::4,0::4,:] = 0
+            b['c'][2::4,1::4,:] = 0
+            b['c'][3::4,0::4,:] = 0
+            b['c'][3::4,1::4,:] = 0
+            b['c'][0::4,2::4,:] = 0
+            b['c'][0::4,3::4,:] = 0
+            b['c'][1::4,2::4,:] = 0
+            b['c'][1::4,3::4,:] = 0
+
+            p['c'][2::4,0::4,:] = 0
+            p['c'][2::4,1::4,:] = 0
+            p['c'][3::4,0::4,:] = 0
+            p['c'][3::4,1::4,:] = 0
+            p['c'][0::4,2::4,:] = 0
+            p['c'][0::4,3::4,:] = 0
+            p['c'][1::4,2::4,:] = 0
+            p['c'][1::4,3::4,:] = 0
+
+            u['c'][:,2::4,0::4,:] = 0
+            u['c'][:,2::4,1::4,:] = 0
+            u['c'][:,3::4,0::4,:] = 0
+            u['c'][:,3::4,1::4,:] = 0
+            u['c'][:,0::4,2::4,:] = 0
+            u['c'][:,0::4,3::4,:] = 0
+            u['c'][:,1::4,2::4,:] = 0
+            u['c'][:,1::4,3::4,:] = 0
+
+
 
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration=%i, Time=%0.16f, dt=%0.16f, Nu=%0.16f, <T>= %0.16f'  %(solver.iteration, solver.sim_time, timestep, flow_Nu, flow_TAvg))#, flow_Nu)) #, flow_Nu, flow_TAvg))

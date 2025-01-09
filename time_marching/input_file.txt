@@ -11,7 +11,7 @@
 #Input ell
 0.1
 #Input Nx
-288
+256
 #Input Ny
 144
 #Input Nz

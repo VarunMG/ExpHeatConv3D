@@ -3,27 +3,28 @@
 #Input Pr
 1
 #Input alpha
-1.1547005383792517
+2.0
 #Input yL
-3.141592653589793
+1.8137993642342178
 #Input beta
 1.0
 #Input ell
 0.1
 #Input Nx
-128
+256
 #Input Ny
 128
 #Input Nz
-64
+128
 #Input stop time
 150
 #Input max timestep
-0.00005
+0.0001
 #Input initializiation 
-load3
+new_hexIC
+#Hex zeroing
+True
 #Output files
 True
-#Filename End String
-prev_hex_state_continue_zeroing
-
+#end String
+R1e5_hex_zero_test_higherres
