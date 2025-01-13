@@ -141,7 +141,7 @@ endString = params[14]
 
 ######### Warning! overwriting input file!
 yL = (2*np.pi)/(alpha*np.sqrt(3)) #hexagonal aspect ratio
-Ny = Nx//2
+#Ny = Nx//2
 
 
 logger.info('params are the following:')
@@ -263,6 +263,12 @@ elif init == 'load4':
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
     p.load_from_global_grid_data(pArr)
+elif init == 'load5':
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T150.0_zero_modes_all_from_prev_runOutput/fluidData3.4999984.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
 elif init == 'zero_modes':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T150.0_hexagon_IC_runOutput/fluidData4.838896.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)
@@ -316,14 +322,20 @@ flow.add_property(b,name='TAvg')
 
 # Main loop
 startup_iter = 10
-tVals = []
-NuVals = []
+tVals = [0]
+NuInit = calcNu(b,alpha_coeff, beta, ell)
+NuVals = [NuInit]
 TAvgVals = []
 allVertMeans = []
 box_volume = (2*np.pi/alpha)*yL*1
 
+##averaging funcs
+pAvg = dist.Field(name='pAvg', bases=(xbasis,ybasis,zbasis))
+bAvg = dist.Field(name='bAvg', bases=(xbasis,ybasis,zbasis))
+uAvg = dist.VectorField(coords, name='uAvg', bases=(xbasis,ybasis,zbasis))
 
-genFileName = 'R'+str(R)+'Pr'+str(Pr)+'alpha'+str(alpha)+'yL'+str(yL)+ 'ell'+str(ell)+'beta'+str(beta)+'Nx'+str(Nx)+'Ny'+str(Ny)+'Nz'+str(Nz)+'_3D_T' + str(stop_sim_time)+'_'+endString
+
+genFileName = 'R'+str(R)+'Pr'+str(Pr)+'alpha'+str(alpha)+'yL'+str(yL)+ 'ell'+str(ell)+'beta'+str(beta)+'Nx'+str(Nx)+'Ny'+str(Ny)+'Nz'+str(Nz)+'_3D_T' + str(stop_sim_time)+'_Averaging_'+endString
 auxDataFile = '/scratch/gudibanda/' + genFileName + '_auxData/'
 NuFileName =  auxDataFile + genFileName + '_NuData.npy'
 TAvgFileName = auxDataFile + genFileName + '_TAvgData.npy'
@@ -340,6 +352,24 @@ try:
         tVals.append(solver.sim_time)
         NuVals.append(flow_Nu)
         TAvgVals.append(flow_TAvg)
+        
+        #update field averages
+        pAvg.change_scales(1)
+        bAvg.change_scales(1)
+        uAvg.change_scales(1)
+
+        p.change_scales(1)
+        b.change_scales(1)
+        u.change_scales(1)
+
+        delta_t = tVals[-1] - tVals[-2]
+        pAvg['g'] = (tVals[-2]/tVals[-1])*pAvg['g'] + (1/tVals[-1])*p['g']*delta_t
+        bAvg['g'] = (tVals[-2]/tVals[-1])*bAvg['g'] + (1/tVals[-1])*b['g']*delta_t
+        uAvg['g'] = (tVals[-2]/tVals[-1])*uAvg['g'] + (1/tVals[-1])*u['g']*delta_t
+        logger.info('Nu of average fields:')
+        NuAvgFields = calcNu(bAvg, alpha_coeff, beta, ell)
+        logger.info(NuAvgFields)
+
         if hex_zeroing:
             b['c'][2::4,0::4,:] = 0
             b['c'][2::4,1::4,:] = 0
@@ -377,8 +407,8 @@ try:
         if (solver.iteration-1) % 100 == 0 and write:
             writeAuxData(NuFileName,tVals,NuVals)
             writeAuxData(TAvgFileName,tVals,TAvgVals)
-            fileName = fluidDataFileName + str(round(10000000*solver.sim_time)/10000000) + '.npy'
-            write_output = writeFields(fileName,solver.sim_time,b,u,p)
+            fileName = fluidDataFileName + str(round(10000000*solver.sim_time)/10000000) + 'Average.npy'
+            write_output = writeFields(fileName,solver.sim_time,bAvg,uAvg,pAvg)
             #if write == 0:
                 #print('fields are not writing')
 except:
@@ -387,10 +417,11 @@ except:
 finally:
     solver.log_stats()
 
-fileName = fluidDataFileName + str(round(10000*solver.sim_time)/10000) + '.npy'
-writeFields(fileName,solver.sim_time,b,u,v)
-writeNu(NuFileName,tVals,NuVals)
+
+fileName = fluidDataFileName + 'finalAverage.npy'
+writeFields(fileName,solver.sim_time,bAvg,uAvg,pAvg)
+writeAuxData(NuFileName,tVals,NuVals)
+writeAuxData(NuFileName,tVals,TAvgVals)
 
 
-#writeNu(NuFileName,tVals,NuVals)
 

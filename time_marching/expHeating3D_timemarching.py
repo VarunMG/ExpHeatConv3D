@@ -148,8 +148,10 @@ write = params[13]
 endString = params[14]
 
 ######### Warning! overwriting input file!
-yL = (2*np.pi)/(alpha*np.sqrt(3)) #hexagonal aspect ratio
-Ny = Nx//2
+if init != 'load_avg':
+    logger.info('enforcing hex aspect ratio and grid points')
+    yL = (2*np.pi)/(alpha*np.sqrt(3)) #hexagonal aspect ratio
+    Ny = Nx//2
 
 
 logger.info('params are the following:')
@@ -267,6 +269,12 @@ elif init == 'load3':
     p.load_from_global_grid_data(pArr)
 elif init == 'load4':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.0yL1.8137993642342178ell0.1beta1.0Nx256Ny128Nz64_3D_T150.0_new_hexIC_test_runOutput/fluidData2.5081922.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load_avg':
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T0.085_Averaging_period_averaging_runOutput/fluidDatafinalAverage.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
@@ -391,7 +399,7 @@ try:
             u['c'][:,1::4,2::4,:] = 0
             u['c'][:,1::4,3::4,:] = 0
 
-            print(b['c'].shape)
+            #print(b['c'].shape)
             #coeff_arr = b.allgather_data('c')
             #logger.info(isHex(coeff_arr))
         if init == 'load_hex':

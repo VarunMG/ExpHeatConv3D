@@ -3,9 +3,9 @@
 #Input Pr
 1
 #Input alpha
-2.0
+1.1547005383792517
 #Input yL
-1.8137993642342178
+3.141592653589793
 #Input beta
 1.0
 #Input ell
@@ -21,7 +21,7 @@
 #Input max timestep
 0.0005
 #Input initializiation 
-load4
+load5
 #Hex zeroing
 True
 #Output files
