@@ -273,6 +273,27 @@ elif init == 'load4':
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
     p.load_from_global_grid_data(pArr)
+elif init == 'load5':
+    logger.info('load5')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.0yL1.8137993642342178ell0.1beta0.0Nx256Ny128Nz64_3D_T200.0_new_hexIC_alpha2.0_beta0_runOutput/fluidData4.7113604.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load6':
+    logger.info('load6')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.2yL1.648908512940198ell0.1beta0.0Nx256Ny128Nz64_3D_T200.0_alpha2.2_start_from_2.0_beta0_runOutput/fluidData20.1864687.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load7':
+    logger.info('load7')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.1yL1.7274279659373504ell0.1beta0.0Nx256Ny128Nz64_3D_T200.0_alpha2.1_start_from_2.0_beta0_runOutput/fluidData3.5492686.npy' 
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
 elif init == 'load_avg':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T0.085_Averaging_period_averaging_runOutput/fluidDatafinalAverage.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)
@@ -336,6 +357,40 @@ flow.add_property(b,name='TAvg')
 #flow.add_property(1 + (b*d3.dot(u,ez))/kappa,name="Nu")
 
 
+### wavenumber information for zeroing
+kxGlobal = xbasis.wavenumbers
+kyGlobal = ybasis.wavenumbers
+
+alpha_y = 2*np.pi/yL
+kxInts = np.round(kxGlobal/alpha)
+kyInts = np.round(kyGlobal/alpha_y)
+
+kx_loc = xbasis.wavenumbers[dist.local_modes(xbasis)]
+ky_loc = ybasis.wavenumbers[dist.local_modes(ybasis)]
+
+kxInt_loc = kxInts[dist.local_modes(xbasis)]
+kyInt_loc = kyInts[dist.local_modes(ybasis)]
+
+#indices to zero for hex zeroing
+hex_zeroing_inds = (kxInt_loc + kyInt_loc)%2 == 1
+hex_zeroing_inds = hex_zeroing_inds[:,:,0]
+
+#indices to zero for high wavenumber symmetry leakage
+kLimit = min(np.max(kxGlobal), np.max(kyGlobal))
+cylinder_zero_inds = kx_loc**2 + ky_loc**2 > kLimit**2
+cylinder_zero_inds = cylinder_zero_inds[:,:,0]
+
+
+#enforce symmetry on initial condition
+if hex_zeroing:
+    b['c'][hex_zeroing_inds,:] = 0
+    p['c'][hex_zeroing_inds,:] = 0
+    u['c'][:,hex_zeroing_inds,:] = 0
+
+    b['c'][cylinder_zero_inds,:] = 0
+    p['c'][cylinder_zero_inds,:] = 0
+    u['c'][:,cylinder_zero_inds,:] = 0
+
 # Main loop
 startup_iter = 10
 tVals = []
@@ -372,32 +427,40 @@ try:
         NuVals.append(flow_Nu)
         TAvgVals.append(flow_TAvg)
         if hex_zeroing:
-            b['c'][2::4,0::4,:] = 0
-            b['c'][2::4,1::4,:] = 0
-            b['c'][3::4,0::4,:] = 0
-            b['c'][3::4,1::4,:] = 0
-            b['c'][0::4,2::4,:] = 0
-            b['c'][0::4,3::4,:] = 0
-            b['c'][1::4,2::4,:] = 0
-            b['c'][1::4,3::4,:] = 0
+            b['c'][hex_zeroing_inds,:] = 0
+            p['c'][hex_zeroing_inds,:] = 0
+            u['c'][:,hex_zeroing_inds,:] = 0
 
-            p['c'][2::4,0::4,:] = 0
-            p['c'][2::4,1::4,:] = 0
-            p['c'][3::4,0::4,:] = 0
-            p['c'][3::4,1::4,:] = 0
-            p['c'][0::4,2::4,:] = 0
-            p['c'][0::4,3::4,:] = 0
-            p['c'][1::4,2::4,:] = 0
-            p['c'][1::4,3::4,:] = 0
+            b['c'][cylinder_zero_inds,:] = 0
+            p['c'][cylinder_zero_inds,:] = 0
+            u['c'][:,cylinder_zero_inds,:] = 0
 
-            u['c'][:,2::4,0::4,:] = 0
-            u['c'][:,2::4,1::4,:] = 0
-            u['c'][:,3::4,0::4,:] = 0
-            u['c'][:,3::4,1::4,:] = 0
-            u['c'][:,0::4,2::4,:] = 0
-            u['c'][:,0::4,3::4,:] = 0
-            u['c'][:,1::4,2::4,:] = 0
-            u['c'][:,1::4,3::4,:] = 0
+            #b['c'][2::4,0::4,:] = 0
+            #b['c'][2::4,1::4,:] = 0
+            #b['c'][3::4,0::4,:] = 0
+            #b['c'][3::4,1::4,:] = 0
+            #b['c'][0::4,2::4,:] = 0
+            #b['c'][0::4,3::4,:] = 0
+            #b['c'][1::4,2::4,:] = 0
+            #b['c'][1::4,3::4,:] = 0
+
+            #p['c'][2::4,0::4,:] = 0
+            #p['c'][2::4,1::4,:] = 0
+            #p['c'][3::4,0::4,:] = 0
+            #p['c'][3::4,1::4,:] = 0
+            #p['c'][0::4,2::4,:] = 0
+            #p['c'][0::4,3::4,:] = 0
+            #p['c'][1::4,2::4,:] = 0
+            #p['c'][1::4,3::4,:] = 0
+
+            #u['c'][:,2::4,0::4,:] = 0
+            #u['c'][:,2::4,1::4,:] = 0
+            #u['c'][:,3::4,0::4,:] = 0
+            #u['c'][:,3::4,1::4,:] = 0
+            #u['c'][:,0::4,2::4,:] = 0
+            #u['c'][:,0::4,3::4,:] = 0
+            #u['c'][:,1::4,2::4,:] = 0
+            #u['c'][:,1::4,3::4,:] = 0
 
             #print(b['c'].shape)
             #coeff_arr = b.allgather_data('c')

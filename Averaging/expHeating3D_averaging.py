@@ -421,7 +421,7 @@ finally:
 fileName = fluidDataFileName + 'finalAverage.npy'
 writeFields(fileName,solver.sim_time,bAvg,uAvg,pAvg)
 writeAuxData(NuFileName,tVals,NuVals)
-writeAuxData(NuFileName,tVals,TAvgVals)
+writeAuxData(TAvgFileName,tVals,TAvgVals)
 
 
 

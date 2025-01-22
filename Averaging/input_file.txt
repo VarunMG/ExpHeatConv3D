@@ -25,6 +25,6 @@ load5
 #Hex zeroing
 True
 #Output files
-False
+True
 #end String
-period_averaging
+period_averaging_test
