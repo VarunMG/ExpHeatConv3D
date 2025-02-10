@@ -88,6 +88,13 @@ def calcNu(b_var, alpha_coeff, beta, ell):
     #bottomAvg = bottomAvg[0]
     #return conductionState(alpha_coeff,beta,ell,0)/bottomAvg
 
+def writeModeData(fileName,tVals,mode_20_data,mode_11_data):
+    with open(fileName,'wb') as modeData:
+        np.save(modeData,tVals)
+        np.save(modeData,mode_20_data)
+        np.save(modeData,mode_11_data)
+    return 1
+
 def writeAuxData(fileName,tVals,AuxVals):
     with open(fileName,'wb') as AuxData:
         np.save(AuxData,tVals)
@@ -294,6 +301,27 @@ elif init == 'load7':
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
     p.load_from_global_grid_data(pArr)
+elif init == 'load8':
+    logger.info('load8')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.113432337831927yL1.7164489553471216ell0.1beta0.0Nx256Ny128Nz64_3D_T200.0_alphaOpt_start_from_2.1_beta0_runOutput/fluidData6.5444193.npy' 
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load9':
+    logger.info('load9')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.0yL1.8137993642342178ell0.1beta1.0Nx256Ny128Nz64_3D_T200.0_partial_symmetry_test_all_fields_runOutput/fluidData4.0000962.npy' 
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load10':
+    logger.info('load10')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha2.0yL1.8137993642342178ell0.1beta1.0Nx256Ny128Nz64_3D_T200.0_partial_symmetry_test_new_method_runOutput/fluidData15.9306618.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
 elif init == 'load_avg':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T0.085_Averaging_period_averaging_runOutput/fluidDatafinalAverage.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)
@@ -391,12 +419,25 @@ if hex_zeroing:
     p['c'][cylinder_zero_inds,:] = 0
     u['c'][:,cylinder_zero_inds,:] = 0
 
+#modes we want to enforce partial symmetry
+mode20_inds = (kxInt_loc == 2) & (kyInt_loc == 0)
+mode11_inds = (kxInt_loc == 1) & (kyInt_loc == 1)
+mode20_inds = mode20_inds[:,:,0]
+mode11_inds = mode11_inds[:,:,0]
+
+
+
+
+
 # Main loop
 startup_iter = 10
 tVals = []
 NuVals = []
 TAvgVals = []
 allVertMeans = []
+hex_modes_20 = []
+hex_modes_11 = []
+
 box_volume = (2*np.pi/alpha)*yL*1
 
 
@@ -407,6 +448,7 @@ makedirs(auxDataFile,runOutDirName)
 
 NuFileName =  auxDataFile + genFileName + '_NuData.npy'
 TAvgFileName = auxDataFile + genFileName + '_TAvgData.npy'
+modesFileName = auxDataFile + genFileName + '_modesData.npy'
 fluidDataFileName = runOutDirName + '/fluidData'
 
 #genFileName = 'R'+str(R)+'Pr'+str(Pr)+'alpha'+str(alpha)+'yL'+str(yL)+ 'ell'+str(ell)+'beta'+str(beta)+'Nx'+str(Nx)+'Ny'+str(Ny)+'Nz'+str(Nz)+'_3D_T' + str(stop_sim_time)+'_'+endString
@@ -426,6 +468,7 @@ try:
         tVals.append(solver.sim_time)
         NuVals.append(flow_Nu)
         TAvgVals.append(flow_TAvg)
+
         if hex_zeroing:
             b['c'][hex_zeroing_inds,:] = 0
             p['c'][hex_zeroing_inds,:] = 0
@@ -435,6 +478,94 @@ try:
             p['c'][cylinder_zero_inds,:] = 0
             u['c'][:,cylinder_zero_inds,:] = 0
 
+            if endString == 'partial_symmetry_test_new_method' or 'partial_symmetry_test_new_method_from_cond':
+                logger.info('enforcing partial symmetry')
+                b_coeffArr = b.allgather_data('c')
+                #p_coeffArr = p.allgather_data('c')
+                #u_coeffArr = u.allgather_data('c')
+
+
+                b_mode_11 = b_coeffArr[2:4,2:4,:]
+                b_mode_20 = b_coeffArr[4:6,0:2,:]
+
+                #p_mode_11 = p_coeffArr[2:4,2:4,:]
+                #p_mode_20 = p_coeffArr[4:6,0:2,:]
+
+                #ux_mode_11 = u_coeffArr[0,2:4,2:4,:]
+                #ux_mode_20 = u_coeffArr[0,4:6,0:2,:]
+
+                #uy_mode_11 = u_coeffArr[1,2:4,2:4,:]
+                #uy_mode_20 = u_coeffArr[1,4:6,0:2,:]
+
+                #uz_mode_11 = u_coeffArr[2,2:4,2:4,:]
+                #uz_mode_20 = u_coeffArr[2,4:6,0:2,:]
+
+                logger.info('temperature (1,1) mode coeffs at z=0:')
+                logger.info(b_mode_11[:,:,0])
+                logger.info('temperature (2,0) mode coeffs at z=0:')
+                logger.info(b_mode_20[:,:,0])
+
+                b_mode_11_cos = b_mode_11[0,0]
+                b_mode_20_cos = b_mode_20[0,0]
+                b_avg = (0.5*b_mode_11_cos + b_mode_20_cos)/2
+
+                #p_mode_11_cos = p_mode_11[0,0]
+                #p_mode_20_cos = p_mode_20[0,0]
+                #p_avg = (0.5*p_mode_11_cos + p_mode_20_cos)/2
+
+                #ux_mode_11_cos = ux_mode_11[0,0]
+                #ux_mode_20_cos = ux_mode_20[0,0]
+                #ux_avg = (0.5*ux_mode_11_cos + ux_mode_20_cos)/2
+
+                #uy_mode_11_cos = uy_mode_11[0,0]
+                #uy_mode_20_cos = uy_mode_20[0,0]
+                #uy_avg = (0.5*uy_mode_11_cos + uy_mode_20_cos)/2
+
+                #uz_mode_11_cos = uz_mode_11[0,0]
+                #uz_mode_20_cos = uz_mode_20[0,0]
+                #uz_avg = (0.5*uz_mode_11_cos + uz_mode_20_cos)/2
+
+                logger.info('will be putting this into cos mode for temperature (1,1) mode at z=0:')
+                logger.info(2*b_avg[0])
+                logger.info('will be putting this into cos mode for temperature (2,0) mode at z=0:')
+                logger.info(b_avg[0])
+
+                if b['c'][mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
+                    b['c'][mode11_inds,:] = np.array([2*b_avg,np.zeros(Nz),np.zeros(Nz),np.zeros(Nz)])
+                if b['c'][mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
+                    b['c'][mode20_inds,:] = np.array([b_avg,np.zeros(Nz),np.zeros(Nz),np.zeros(Nz)])
+
+                #if p['c'][mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
+                #    p['c'][mode11_inds,:] = 2*p_avg
+                #if p['c'][mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
+                #    p['c'][mode20_inds,:][0] = p_avg
+
+                #if u['c'][0,mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
+                #    u['c'][0,mode11_inds,:][0] = 2*ux_avg
+                #if u['c'][0,mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
+                #    u['c'][0,mode20_inds,:][0] = ux_avg
+
+                #if u['c'][1,mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
+                #    u['c'][1,mode11_inds,:][0] = 2*uy_avg
+                #if u['c'][1,mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
+                #    u['c'][1,mode20_inds,:][0] = uy_avg
+
+                #if u['c'][2,mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
+                #    u['c'][2,mode11_inds,:][0] = 2*uz_avg
+                #if u['c'][2,mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
+                #    u['c'][2,mode20_inds,:][0] = uz_avg
+
+                #b_coeffArr = b.allgather_data('c')
+                #b_mode_11 = b_coeffArr[2:4,2:4,:]
+                #b_mode_20 = b_coeffArr[4:6,0:2,:]
+
+                #logger.info('new coefficients after averaging:')
+                #logger.info('temperature (1,1) mode coeffs at z=0:')
+                #logger.info(b_mode_11[:,:,0])
+                #logger.info('temperature (2,0) mode coeffs at z=0:')
+                #logger.info(b_mode_20[:,:,0])
+
+                #logger.info('-----')
             #b['c'][2::4,0::4,:] = 0
             #b['c'][2::4,1::4,:] = 0
             #b['c'][3::4,0::4,:] = 0

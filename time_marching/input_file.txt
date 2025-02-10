@@ -3,11 +3,11 @@
 #Input Pr
 1
 #Input alpha
-2.113432337831927
+1.8
 #Input yL
 1.7164489553471216
 #Input beta
-0.0
+1.0
 #Input ell
 0.1
 #Input Nx
@@ -19,12 +19,12 @@
 #Input stop time
 200
 #Input max timestep
-0.0005
+1e-4
 #Input initializiation 
-load7
+load10
 #Hex zeroing
 True
 #Output files
 True
 #end String
-alphaOpt_start_from_2.1_beta0
+alpha1.8_start_from_alpha2.0_beta1

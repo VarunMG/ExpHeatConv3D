@@ -3,15 +3,15 @@
 #Input Pr
 1
 #Input alpha
-1.1547005383792517
+2.2
 #Input yL
-3.141592653589793
+1.8137993642342178
 #Input beta
 1.0
 #Input ell
 0.1
 #Input Nx
-128
+256
 #Input Ny
 128
 #Input Nz
@@ -19,12 +19,12 @@
 #Input stop time
 150
 #Input max timestep
-0.0005
+1e-4
 #Input initializiation 
-load_avg
+load10
 #Hex zeroing
 True
 #Output files
 True
 #end String
-R1e5_start_from_average
+alpha2.2_start_from_alpha2.0_beta1
