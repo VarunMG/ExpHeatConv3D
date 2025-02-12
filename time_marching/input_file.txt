@@ -3,9 +3,9 @@
 #Input Pr
 1
 #Input alpha
-1.8
+1.6
 #Input yL
-1.7164489553471216
+-1
 #Input beta
 1.0
 #Input ell
@@ -21,10 +21,10 @@
 #Input max timestep
 1e-4
 #Input initializiation 
-load10
+load11
 #Hex zeroing
 True
 #Output files
 True
 #end String
-alpha1.8_start_from_alpha2.0_beta1
+alpha1.6_start_from_alpha1.8_beta1

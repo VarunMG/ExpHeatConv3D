@@ -322,6 +322,13 @@ elif init == 'load10':
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
     p.load_from_global_grid_data(pArr)
+elif init == 'load11':
+    logger.info('load11')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.8yL2.0153326269269085ell0.1beta1.0Nx256Ny128Nz64_3D_T200.0_alpha1.8_start_from_alpha2.0_beta1_runOutput/fluidData11.9021205.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
 elif init == 'load_avg':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T0.085_Averaging_period_averaging_runOutput/fluidDatafinalAverage.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)
@@ -478,15 +485,14 @@ try:
             p['c'][cylinder_zero_inds,:] = 0
             u['c'][:,cylinder_zero_inds,:] = 0
 
-            if endString == 'partial_symmetry_test_new_method' or 'partial_symmetry_test_new_method_from_cond':
-                logger.info('enforcing partial symmetry')
-                b_coeffArr = b.allgather_data('c')
+            logger.info('enforcing partial symmetry')
+            b_coeffArr = b.allgather_data('c')
                 #p_coeffArr = p.allgather_data('c')
                 #u_coeffArr = u.allgather_data('c')
 
 
-                b_mode_11 = b_coeffArr[2:4,2:4,:]
-                b_mode_20 = b_coeffArr[4:6,0:2,:]
+            b_mode_11 = b_coeffArr[2:4,2:4,:]
+            b_mode_20 = b_coeffArr[4:6,0:2,:]
 
                 #p_mode_11 = p_coeffArr[2:4,2:4,:]
                 #p_mode_20 = p_coeffArr[4:6,0:2,:]
@@ -500,14 +506,14 @@ try:
                 #uz_mode_11 = u_coeffArr[2,2:4,2:4,:]
                 #uz_mode_20 = u_coeffArr[2,4:6,0:2,:]
 
-                logger.info('temperature (1,1) mode coeffs at z=0:')
-                logger.info(b_mode_11[:,:,0])
-                logger.info('temperature (2,0) mode coeffs at z=0:')
-                logger.info(b_mode_20[:,:,0])
+            logger.info('temperature (1,1) mode coeffs at z=0:')
+            logger.info(b_mode_11[:,:,0])
+            logger.info('temperature (2,0) mode coeffs at z=0:')
+            logger.info(b_mode_20[:,:,0])
 
-                b_mode_11_cos = b_mode_11[0,0]
-                b_mode_20_cos = b_mode_20[0,0]
-                b_avg = (0.5*b_mode_11_cos + b_mode_20_cos)/2
+            b_mode_11_cos = b_mode_11[0,0]
+            b_mode_20_cos = b_mode_20[0,0]
+            b_avg = (0.5*b_mode_11_cos + b_mode_20_cos)/2
 
                 #p_mode_11_cos = p_mode_11[0,0]
                 #p_mode_20_cos = p_mode_20[0,0]
@@ -525,15 +531,15 @@ try:
                 #uz_mode_20_cos = uz_mode_20[0,0]
                 #uz_avg = (0.5*uz_mode_11_cos + uz_mode_20_cos)/2
 
-                logger.info('will be putting this into cos mode for temperature (1,1) mode at z=0:')
-                logger.info(2*b_avg[0])
-                logger.info('will be putting this into cos mode for temperature (2,0) mode at z=0:')
-                logger.info(b_avg[0])
+            #logger.info('will be putting this into cos mode for temperature (1,1) mode at z=0:')
+            #logger.info(2*b_avg[0])
+            #logger.info('will be putting this into cos mode for temperature (2,0) mode at z=0:')
+            #logger.info(b_avg[0])
 
-                if b['c'][mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
-                    b['c'][mode11_inds,:] = np.array([2*b_avg,np.zeros(Nz),np.zeros(Nz),np.zeros(Nz)])
-                if b['c'][mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
-                    b['c'][mode20_inds,:] = np.array([b_avg,np.zeros(Nz),np.zeros(Nz),np.zeros(Nz)])
+            if b['c'][mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
+                b['c'][mode11_inds,:] = np.array([2*b_avg,np.zeros(Nz),np.zeros(Nz),np.zeros(Nz)])
+            if b['c'][mode20_inds,:].shape[0] != 0: #this is 2,0 coefficient
+                b['c'][mode20_inds,:] = np.array([b_avg,np.zeros(Nz),np.zeros(Nz),np.zeros(Nz)])
 
                 #if p['c'][mode11_inds,:].shape[0] != 0: #this is 1,1 coefficient
                 #    p['c'][mode11_inds,:] = 2*p_avg
@@ -562,69 +568,7 @@ try:
                 #logger.info('new coefficients after averaging:')
                 #logger.info('temperature (1,1) mode coeffs at z=0:')
                 #logger.info(b_mode_11[:,:,0])
-                #logger.info('temperature (2,0) mode coeffs at z=0:')
-                #logger.info(b_mode_20[:,:,0])
-
                 #logger.info('-----')
-            #b['c'][2::4,0::4,:] = 0
-            #b['c'][2::4,1::4,:] = 0
-            #b['c'][3::4,0::4,:] = 0
-            #b['c'][3::4,1::4,:] = 0
-            #b['c'][0::4,2::4,:] = 0
-            #b['c'][0::4,3::4,:] = 0
-            #b['c'][1::4,2::4,:] = 0
-            #b['c'][1::4,3::4,:] = 0
-
-            #p['c'][2::4,0::4,:] = 0
-            #p['c'][2::4,1::4,:] = 0
-            #p['c'][3::4,0::4,:] = 0
-            #p['c'][3::4,1::4,:] = 0
-            #p['c'][0::4,2::4,:] = 0
-            #p['c'][0::4,3::4,:] = 0
-            #p['c'][1::4,2::4,:] = 0
-            #p['c'][1::4,3::4,:] = 0
-
-            #u['c'][:,2::4,0::4,:] = 0
-            #u['c'][:,2::4,1::4,:] = 0
-            #u['c'][:,3::4,0::4,:] = 0
-            #u['c'][:,3::4,1::4,:] = 0
-            #u['c'][:,0::4,2::4,:] = 0
-            #u['c'][:,0::4,3::4,:] = 0
-            #u['c'][:,1::4,2::4,:] = 0
-            #u['c'][:,1::4,3::4,:] = 0
-
-            #print(b['c'].shape)
-            #coeff_arr = b.allgather_data('c')
-            #logger.info(isHex(coeff_arr))
-        if init == 'load_hex':
-            b['c'][2::4,0::4,:] = 0
-            b['c'][2::4,1::4,:] = 0
-            b['c'][3::4,0::4,:] = 0
-            b['c'][3::4,1::4,:] = 0
-            b['c'][0::4,2::4,:] = 0
-            b['c'][0::4,3::4,:] = 0
-            b['c'][1::4,2::4,:] = 0
-            b['c'][1::4,3::4,:] = 0
-
-            p['c'][2::4,0::4,:] = 0
-            p['c'][2::4,1::4,:] = 0
-            p['c'][3::4,0::4,:] = 0
-            p['c'][3::4,1::4,:] = 0
-            p['c'][0::4,2::4,:] = 0
-            p['c'][0::4,3::4,:] = 0
-            p['c'][1::4,2::4,:] = 0
-            p['c'][1::4,3::4,:] = 0
-
-            u['c'][:,2::4,0::4,:] = 0
-            u['c'][:,2::4,1::4,:] = 0
-            u['c'][:,3::4,0::4,:] = 0
-            u['c'][:,3::4,1::4,:] = 0
-            u['c'][:,0::4,2::4,:] = 0
-            u['c'][:,0::4,3::4,:] = 0
-            u['c'][:,1::4,2::4,:] = 0
-            u['c'][:,1::4,3::4,:] = 0
-
-
 
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration=%i, Time=%0.16f, dt=%0.16f, Nu=%0.16f, <T>= %0.16f'  %(solver.iteration, solver.sim_time, timestep, flow_Nu, flow_TAvg))#, flow_Nu)) #, flow_Nu, flow_TAvg))
