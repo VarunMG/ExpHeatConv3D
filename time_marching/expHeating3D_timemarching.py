@@ -329,6 +329,35 @@ elif init == 'load11':
     u.load_from_global_grid_data(uArr)
     b.load_from_global_grid_data(bArr)
     p.load_from_global_grid_data(pArr)
+elif init == 'load12':
+    logger.info('load12')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.6yL2.267249205292772ell0.1beta1.0Nx256Ny128Nz64_3D_T200.0_alpha1.6_start_from_alpha1.8_beta1_runOutput/fluidData5.2701.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load13':
+    logger.info('load13')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.6yL2.267249205292772ell0.1beta1.0Nx256Ny128Nz64_3D_T200.0_alpha1.6_start_from_alpha1.8_beta1_runOutput/fluidData5.2701.npy' 
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load14':
+    logger.info('load14')
+    loadFile = '/scratch/gudibanda/R1000000.0Pr1.0alpha2.113432337831927yL1.7164489553471216ell0.1beta0.0Nx288Ny144Nz144_3D_T200.0_start_from_R1e5_opt_beta0_runOutput/fluidData0.4998828.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+elif init == 'load15':
+    logger.info('load15')
+    loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.6662489835632717yL2.177104841024911ell0.1beta1.0Nx256Ny128Nz64_3D_T200.0_alphaOpt_start_from_alpha1.6_beta1_runOutput/fluidData9.9849633.npy'
+    time, bArr, uArr, pArr = openFields_3D(loadFile)
+    u.load_from_global_grid_data(uArr)
+    b.load_from_global_grid_data(bArr)
+    p.load_from_global_grid_data(pArr)
+
 elif init == 'load_avg':
     loadFile = '/scratch/gudibanda/R100000.0Pr1.0alpha1.1547005383792517yL3.141592653589793ell0.1beta1.0Nx128Ny128Nz64_3D_T0.085_Averaging_period_averaging_runOutput/fluidDatafinalAverage.npy'
     time, bArr, uArr, pArr = openFields_3D(loadFile)

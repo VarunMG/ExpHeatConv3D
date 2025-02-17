@@ -1,30 +1,30 @@
 #Input R
-1e5
+1e6
 #Input Pr
 1
 #Input alpha
-1.6
+2.75
 #Input yL
 -1
 #Input beta
-1.0
+0.0
 #Input ell
 0.1
 #Input Nx
-256
+288
 #Input Ny
-128
+144
 #Input Nz
-64
+144
 #Input stop time
 200
 #Input max timestep
 1e-4
 #Input initializiation 
-load11
+load14
 #Hex zeroing
 True
 #Output files
 True
 #end String
-alpha1.6_start_from_alpha1.8_beta1
+alpha2.75_start_from_alpha2.11343_beta0
